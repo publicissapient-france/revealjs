@@ -1,6 +1,6 @@
 FROM node
 
-ENV REVEAL_VERSION 3.2.0
+ENV REVEAL_VERSION 3.3.0
 #RUN  apt-get -y install curl && \
 #  curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash - && \
 #  apt-get -y -q install curl nodejs npm && \
@@ -8,15 +8,20 @@ ENV REVEAL_VERSION 3.2.0
 
 RUN curl -L https://github.com/hakimel/reveal.js/archive/$REVEAL_VERSION.tar.gz | tar xz && ln -s /reveal.js-$REVEAL_VERSION /revealjs
 
-RUN mkdir -p /reveal/md
-
 WORKDIR /revealjs
 
-RUN npm install -g grunt-cli
 RUN npm install
-#RUN sed -i Gruntfile.js -e 's/port: port,/port: port, hostname: "",/'
-COPY index.html /revealjs/
+COPY present.py /revealjs/
+RUN chmod +x /revealjs/present.py
+COPY templates /revealjs/templates
+COPY css/theme /revealjs/css/theme
+COPY css/sd_custom.css /revealjs/css/
+COPY fonts /revealjs/fonts
+COPY images /revealjs/images
 
 EXPOSE 8000
-VOLUME ["/revealjs/md/"]
-CMD ["grunt", "serve"]
+
+VOLUME ["/revealjs/presentation"]
+#CMD ["grunt", "serve"]
+
+CMD [ "/revealjs/present.py" ]
